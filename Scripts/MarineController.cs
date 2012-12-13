@@ -5,8 +5,8 @@ public class MarineController : MonoBehaviour {
 	
 	private bool isSelected = false;
 	
-	private const float rotationSpeed = 1.0f;
-	private const float rotationAngle = 25f;
+	private const float rotationSpeed = 0.5f;
+	private const float rotationAngle = 10f;
 	private int rotationSteps = (int)(rotationAngle / rotationSpeed);
 	private bool rotationDirection = false;	//	true == right
 	private Vector2 currentPosition;
@@ -36,19 +36,33 @@ public class MarineController : MonoBehaviour {
 	}
 	
 	void OnMouseDown () {
-		isSelected = !isSelected;
-		
-		if (!isSelected) {
-			transform.eulerAngles = new Vector3(0, 0, 0);
+		if (!GameController.Instance.lockSelection) {
+			isSelected = !isSelected;
+			
+			if (!isSelected) {
+				transform.eulerAngles = new Vector3(0, 0, 0);
+			}
+			else {
+				GameController.Instance.isSelected = name;
+			}
+			
+			transform.rigidbody.isKinematic = true;
 		}
-		
-		transform.rigidbody.isKinematic = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (isSelected) {
-			RotateMe();
+			if (GameController.Instance.isSelected != name) {
+				OnMouseDown();
+			}
+			else {
+				if (GameController.Instance.moveTo != new Vector2(-1, -1)) {
+					GameController.Instance.LockSelection();
+				}
+					
+				RotateMe();
+			}
 		}
 		else {
 			if ((int)transform.eulerAngles.y != 0) {
